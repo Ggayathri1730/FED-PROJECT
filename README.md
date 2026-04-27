@@ -1,7 +1,7 @@
 # FED-PROJECT
 Plagiarism Check UI Mock
 
-Abstract
+Abstract:
 
 With the increasing reliance on digital content in education and research, plagiarism has become a significant concern. While established tools such as Turnitin and Grammarly help identify copied content, users often lack awareness of how these systems present results and support interaction through their interfaces. This creates a need for an educational model that clearly demonstrates the workflow and design of such platforms.
 

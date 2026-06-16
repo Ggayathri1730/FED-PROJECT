@@ -1,346 +1,408 @@
-import { useState } from "react";
+import React, {
+  useState,
+} from "react";
 import Navbar from "../components/Navbar";
 
 function Dashboard() {
-  const [text, setText] = useState("");
-  const [file, setFile] = useState(null);
+  const [text,
+    setText] =
+    useState("");
 
-  const [loading, setLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [showResult, setShowResult] = useState(false);
+  const [fileName,
+    setFileName] =
+    useState("");
 
-  const [score, setScore] = useState(0);
-  const [originality, setOriginality] = useState(100);
-  const [words, setWords] = useState(0);
-  const [sources, setSources] = useState(0);
+  const [loading,
+    setLoading] =
+    useState(false);
 
-  const [matchedContent, setMatchedContent] =
+  const [score,
+    setScore] =
+    useState(0);
+
+  const [originality,
+    setOriginality] =
+    useState(100);
+
+  const [words,
+    setWords] =
+    useState(0);
+
+  const [sources,
+    setSources] =
+    useState(0);
+
+  const [matchedContent,
+    setMatchedContent] =
     useState([]);
 
-  const handleCheck = () => {
-    // Validation
-    if (
-      text.trim() === "" &&
-      !file
-    ) {
-      alert(
-        "Please enter text or upload a file!"
+  const [showResult,
+    setShowResult] =
+    useState(false);
+
+  // Upload file
+  const handleFileUpload =
+    (e) => {
+      const file =
+        e.target.files[0];
+
+      if (!file)
+        return;
+
+      setFileName(
+        file.name
       );
-      return;
-    }
 
-    setLoading(true);
-    setShowResult(false);
-    setProgress(0);
+      const reader =
+        new FileReader();
 
-    let currentProgress = 0;
+      reader.onload =
+        (event) => {
+          setText(
+            event.target
+              .result
+          );
+        };
 
-    const interval =
-      setInterval(() => {
-        currentProgress += 10;
-        setProgress(
-          currentProgress
+      reader.readAsText(
+        file
+      );
+    };
+
+  // Fake plagiarism check
+  const handleCheck =
+    async () => {
+      if (
+        text.trim() ===
+        ""
+      ) {
+        alert(
+          "Please enter text or upload file!"
         );
+        return;
+      }
 
-        if (
-          currentProgress >=
-          100
-        ) {
-          clearInterval(
-            interval
-          );
+      setLoading(
+        true
+      );
+      setShowResult(
+        false
+      );
 
-          // Word count
-          const wordCount =
-            text.trim() === ""
-              ? 120
-              : text
-                  .trim()
-                  .split(/\s+/)
-                  .length;
+      setTimeout(
+        () => {
+          const randomScore =
+            Math.floor(
+              Math.random() *
+                60
+            );
 
-          const lowerText =
-            text.toLowerCase();
-
-          let plagiarismScore =
-            0;
-
-          let matched = [];
-
-          // Keywords to detect copied content
-          const copiedKeywords =
-            [
-              "according to",
-              "research",
-              "study",
-              "wikipedia",
-              "article",
-              "artificial intelligence",
-              "machine learning",
-              "technology",
-              "internet",
-              "source",
-              "data science",
-            ];
-
-          let copiedDetected =
-            false;
-
-          copiedKeywords.forEach(
-            (word) => {
-              if (
-                lowerText.includes(
-                  word
-                )
-              ) {
-                copiedDetected =
-                  true;
-              }
-            }
-          );
-
-          // Smart Logic
-          if (
-            wordCount < 50
-          ) {
-            plagiarismScore =
-              copiedDetected
-                ? 30
-                : 0;
-          } else if (
-            wordCount >= 50 &&
-            wordCount <=
-              100
-          ) {
-            plagiarismScore =
-              copiedDetected
-                ? 55
-                : 25;
-          } else {
-            plagiarismScore =
-              copiedDetected
-                ? 100
-                : 70;
-          }
-
-          // If uploaded file
-          if (
-            file &&
-            text.trim() === ""
-          ) {
-            plagiarismScore = 65;
-          }
-
-          // Matched Content
-          if (
-            plagiarismScore ===
-            0
-          ) {
-            matched = [
-              {
-                text:
-                  "No copied content found. Looks original.",
-                level:
-                  "Original Content",
-              },
-            ];
-          } else if (
-            plagiarismScore <
-            60
-          ) {
-            matched = [
-              {
-                text:
-                  "Some copied content detected.",
-                level:
-                  "Medium Similarity",
-              },
-            ];
-          } else {
-            matched = [
-              {
-                text:
-                  "Highly copied content detected.",
-                level:
-                  "High Similarity",
-              },
-            ];
-          }
+          const originalityScore =
+            100 -
+            randomScore;
 
           setScore(
-            plagiarismScore
+            randomScore
           );
 
           setOriginality(
-            100 -
-              plagiarismScore
+            originalityScore
           );
 
           setWords(
-            wordCount
+            text
+              .trim()
+              .split(
+                /\s+/
+              ).length
           );
 
+          const fakeSources =
+            [
+              {
+                sentence:
+                  "Wikipedia Reference",
+                ratio:
+                  randomScore,
+              },
+              {
+                sentence:
+                  "Research Paper Match",
+                ratio:
+                  randomScore -
+                  10,
+              },
+            ];
+
           setSources(
-            plagiarismScore ===
-              0
-              ? 0
-              : plagiarismScore <
-                60
-              ? 3
-              : 8
+            fakeSources.length
           );
 
           setMatchedContent(
-            matched
+            fakeSources
           );
 
-          setLoading(false);
-          setShowResult(true);
-        }
-      }, 200);
-  };
+          setShowResult(
+            true
+          );
+
+          setLoading(
+            false
+          );
+        },
+        2500
+      );
+    };
 
   return (
     <div className="dashboard-page">
       <Navbar />
 
-      <div className="dashboard-container">
-        <h1>
-          Dashboard 👋
+      <div
+        className="dashboard-container"
+        style={{
+          padding:
+            "40px",
+          color:
+            "white",
+          background:
+            "#020617",
+          minHeight:
+            "100vh",
+        }}
+      >
+        <h1
+          style={{
+            fontSize:
+              "50px",
+            marginBottom:
+              "20px",
+          }}
+        >
+          Check
+          Plagiarism
         </h1>
 
-        <p>
-          Welcome back!
-          Analyze your content
-          for originality.
-        </p>
-
-        {/* Check Box */}
-        <div className="text-check-box">
-          <h2>
-            Check Plagiarism
-          </h2>
-
-          <textarea
-            placeholder="Paste your content here..."
-            value={text}
-            onChange={(e) =>
-              setText(
-                e.target.value
-              )
-            }
-          ></textarea>
-
-          <h3
-            style={{
-              marginTop:
-                "20px",
-            }}
-          >
-            Upload Document:
+        {/* Upload Section */}
+        <div
+          style={{
+            background:
+              "#0f172a",
+            padding:
+              "25px",
+            borderRadius:
+              "15px",
+            border:
+              "1px solid rgba(255,255,255,0.08)",
+          }}
+        >
+          <h3>
+            Upload
+            Document
           </h3>
 
           <input
             type="file"
             accept=".txt,.pdf,.doc,.docx"
-            onChange={(e) =>
-              setFile(
+            onChange={
+              handleFileUpload
+            }
+            style={{
+              marginTop:
+                "15px",
+              marginBottom:
+                "20px",
+              color:
+                "white",
+            }}
+          />
+
+          {fileName && (
+            <p
+              style={{
+                color:
+                  "#8b5cf6",
+              }}
+            >
+              Uploaded:
+              {" "}
+              {
+                fileName
+              }
+            </p>
+          )}
+
+          <textarea
+            placeholder="Paste content here or upload a document..."
+            value={text}
+            onChange={(
+              e
+            ) =>
+              setText(
                 e.target
-                  .files[0]
+                  .value
               )
             }
+            rows="10"
+            style={{
+              width:
+                "100%",
+              padding:
+                "20px",
+              borderRadius:
+                "12px",
+              background:
+                "#111827",
+              color:
+                "white",
+              border:
+                "1px solid #8b5cf6",
+              marginTop:
+                "20px",
+            }}
           />
 
           <button
-            className="check-btn"
             onClick={
               handleCheck
             }
+            style={{
+              marginTop:
+                "20px",
+              width:
+                "100%",
+              padding:
+                "16px",
+              border:
+                "none",
+              borderRadius:
+                "12px",
+              background:
+                "#8b5cf6",
+              color:
+                "white",
+              fontSize:
+                "20px",
+              cursor:
+                "pointer",
+            }}
           >
-            Check
-            Plagiarism
+            {loading
+              ? "Analyzing..."
+              : "Check Plagiarism"}
           </button>
-
-          {loading && (
-            <div
-              style={{
-                marginTop:
-                  "20px",
-              }}
-            >
-              <p>
-                Checking
-                plagiarism...
-              </p>
-
-              <progress
-                value={
-                  progress
-                }
-                max="100"
-                style={{
-                  width:
-                    "100%",
-                }}
-              />
-            </div>
-          )}
         </div>
 
         {/* Result */}
         {showResult && (
           <>
-            <div className="stats-container">
-              <div className="stat-card">
+            <div
+              style={{
+                display:
+                  "grid",
+                gridTemplateColumns:
+                  "repeat(4,1fr)",
+                gap:
+                  "20px",
+                marginTop:
+                  "40px",
+              }}
+            >
+              <div
+                style={{
+                  background:
+                    "#0f172a",
+                  padding:
+                    "20px",
+                  borderRadius:
+                    "15px",
+                }}
+              >
                 <h3>
                   Plagiarism
                   Score
                 </h3>
-                <h2>
-                  {score}%
-                </h2>
+                <h1>
+                  {
+                    score
+                  }
+                  %
+                </h1>
               </div>
 
-              <div className="stat-card">
+              <div
+                style={{
+                  background:
+                    "#0f172a",
+                  padding:
+                    "20px",
+                  borderRadius:
+                    "15px",
+                }}
+              >
                 <h3>
                   Originality
-                  Score
                 </h3>
-                <h2>
+                <h1>
                   {
                     originality
                   }
                   %
-                </h2>
+                </h1>
               </div>
 
-              <div className="stat-card">
+              <div
+                style={{
+                  background:
+                    "#0f172a",
+                  padding:
+                    "20px",
+                  borderRadius:
+                    "15px",
+                }}
+              >
                 <h3>
-                  Total Words
+                  Total
+                  Words
                 </h3>
-                <h2>
-                  {words}
-                </h2>
+                <h1>
+                  {
+                    words
+                  }
+                </h1>
               </div>
 
-              <div className="stat-card">
+              <div
+                style={{
+                  background:
+                    "#0f172a",
+                  padding:
+                    "20px",
+                  borderRadius:
+                    "15px",
+                }}
+              >
                 <h3>
-                  Matched
                   Sources
                 </h3>
-                <h2>
+                <h1>
                   {
                     sources
                   }
-                </h2>
+                </h1>
               </div>
             </div>
 
             {/* Matched Content */}
-            <div className="matched-section">
+            <div
+              style={{
+                marginTop:
+                  "40px",
+              }}
+            >
               <h2>
                 Matched
-                Content
+                Sources
               </h2>
 
               {matchedContent.map(
@@ -352,18 +414,32 @@ function Dashboard() {
                     key={
                       index
                     }
-                    className="match-card"
+                    style={{
+                      background:
+                        "#0f172a",
+                      border:
+                        "1px solid #8b5cf6",
+                      padding:
+                        "15px",
+                      marginTop:
+                        "15px",
+                      borderRadius:
+                        "12px",
+                    }}
                   >
                     <p>
                       {
-                        item.text
+                        item.sentence
                       }
                     </p>
 
                     <strong>
+                      Similarity:
+                      {" "}
                       {
-                        item.level
+                        item.ratio
                       }
+                      %
                     </strong>
                   </div>
                 )
